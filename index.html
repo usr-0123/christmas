@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>🎄 Merry Christmas 🎄</title>
+
+<style>
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(to bottom, #8b0000, #ff4040);
+    font-family: 'Comic Sans MS', Arial, sans-serif;
+    color: white;
+    text-align: center;
+    overflow-x: hidden;
+  }
+
+  h1 {
+    margin-top: 80px;
+    font-size: 46px;
+    animation: bounce 2s infinite;
+  }
+
+  .controls {
+    margin-top: 20px;
+  }
+
+  /* ⏳ Progress bar */
+  .progress-container {
+    width: 60%;
+    height: 8px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 10px;
+    margin: 20px auto;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    width: 0%;
+    background: #00ffcc;
+    transition: width linear;
+  }
+
+  /* 💬 Message with crossfade */
+  .message {
+    margin: 60px auto;
+    font-size: 28px;
+    width: 80%;
+    opacity: 1;
+    transition: opacity 0.8s ease;
+  }
+
+  .snowflake {
+    position: fixed;
+    top: -10px;
+    color: white;
+    animation: fall linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes fall {
+    to {
+      transform: translateY(110vh);
+    }
+  }
+
+  .santa-popup {
+    position: fixed;
+    bottom: -100px;
+    left: 50%;
+    transform: translateX(-100%);
+    font-size: 80px;
+    animation: santaPop 2s ease forwards;
+    pointer-events: none;
+  }
+
+  @keyframes santaPop {
+    0% { bottom: -100px; }
+    50% { bottom: 40px; }
+    100% { bottom: -100px; }
+  }
+
+  /* ✨ Sparkles */
+  .sparkle {
+    position: fixed;
+    font-size: 20px;
+    animation: sparkle 1.5s ease-out forwards;
+  }
+
+  @keyframes sparkle {
+    to {
+      transform: translateY(-100px) scale(0);
+      opacity: 0;
+    }
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+</style>
+</head>
+
+<body>
+
+<h1>🎄 Merry Christmas 🎄</h1>
+
+<div class="progress-container">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<div class="message" id="message"></div>
+
+<audio autoplay loop>
+  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const name = params.get("name") || "My Friend";
+
+  const messages = [
+    `🎅 Ho Ho Ho ${name}! Santa almost skipped you… but changed his mind 😄`,
+    `🎄 Merry Christmas ${name}! May your food be plenty and your stress be zero`,
+    `🎁 ${name}, calories don’t count today. Enjoy 😌`,
+    `❄ ${name}! Christmas vibes loading… ████████ 100%`,
+    `🎅 Santa says ${name} deserves extra snacks`,
+    `🎄 Warning ${name}: happiness overload detected 😂`,
+    `🎁 ${name}, this message comes with free joy`,
+    `✨ Smile ${name}, Christmas magic is real`
+  ];
+
+  let index = 0;
+  let interval = 3000;
+  let timer;
+
+  const msg = document.getElementById("message");
+  const progressBar = document.getElementById("progressBar");
+
+  function updateMessage() {
+    msg.style.opacity = 0;
+
+    setTimeout(() => {
+      msg.innerText = messages[index % messages.length];
+      msg.style.opacity = 1;
+      sparkleBurst();
+
+      if ((index + 1) % 0.5 === 0) {
+        santaPopup();
+      }
+
+      index++;
+      restartProgressBar();
+    }, 400);
+  }
+
+  function startTimer() {
+    clearInterval(timer);
+    timer = setInterval(updateMessage, interval);
+    restartProgressBar();
+  }
+
+  const timeValue = 1;
+
+  function restartProgressBar() {
+    progressBar.style.transition = "none";
+    progressBar.style.width = "0%";
+
+    setTimeout(() => {
+      progressBar.style.transition = `width ${interval}ms linear`;
+      progressBar.style.width = "100%";
+    }, 50);
+  }
+
+  function createSnow() {
+    const snow = document.createElement("div");
+    snow.className = "snowflake";
+    snow.innerText = "❄";
+    snow.style.left = Math.random() * window.innerWidth + "px";
+    snow.style.animationDuration = 3 + Math.random() * 5 + "s";
+    snow.style.opacity = Math.random();
+    snow.style.fontSize = 10 + Math.random() * 20 + "px";
+    document.body.appendChild(snow);
+    setTimeout(() => snow.remove(), 8000);
+  }
+  setInterval(createSnow, 150);
+
+  function sparkleBurst() {
+    for (let i = 0; i < 12; i++) {
+      const sparkle = document.createElement("div");
+      sparkle.className = "sparkle";
+      sparkle.innerText = ["✨","🎄","🎅","🎁","💬","❄"][Math.floor(Math.random() * 4)];
+      sparkle.style.left = Math.random() * window.innerWidth + "px";
+      sparkle.style.top = Math.random() * window.innerHeight + "px";
+      document.body.appendChild(sparkle);
+      setTimeout(() => sparkle.remove(), 1500);
+    }
+  }
+
+  function santaPopup() {
+    const santa = document.createElement("div");
+    santa.className = "santa-popup";
+    santa.innerText = "🎅";
+    document.body.appendChild(santa);
+    setTimeout(() => santa.remove(), 2000);
+  }
+
+  updateMessage();
+  startTimer();
+</script>
+
+</body>
+</html>
