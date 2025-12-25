@@ -114,40 +114,67 @@
 
 <body>
 
-<!-- <h1>🎄 Merry Christmas 🎄</h1> -->
+<div>
+  <h1 id="taja"></h1>
 
-<h1 id="taja"></h1>
+  <div class="controls">
+    ⏱ Change message every:
+    <strong><span id="timeValue">3</span></strong> seconds
+    <br><br>
+    <input type="range" min="1" max="10" value="3" id="timeSlider" style="width: 250px;display: none;">
+  </div>
 
-<div class="controls">
-  ⏱ Change message every:
-  <strong><span id="timeValue">3</span></strong> seconds
-  <br><br>
-  <input type="range" min="1" max="10" value="3" id="timeSlider" style="width: 250px;display: none;">
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <div class="message" id="message"></div>
+
+  <div id="startOverlay" style="
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,1);
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:32px;
+    cursor:pointer;
+    z-index:1000;
+  ">
+    🎅 Tap to start Santa’s Christmas magic!
+  </div>
 </div>
-
-<div class="progress-container">
-  <div class="progress-bar" id="progressBar"></div>
-</div>
-
-<div class="message" id="message"></div>
 
 <script>
-const params = new URLSearchParams(window.location.search);
-const name = params.get("name") || "Ng";
+  const overlay = document.getElementById("startOverlay");
+
+  overlay.addEventListener("click", () => {
+    overlay.style.display = "none";
+
+    const utter = new SpeechSynthesisUtterance("");
+    speechSynthesis.speak(utter);
+    updateMessage();
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  const name = params.get("name") || "Ng";
 
 const messages = [
+  `This message comes with free joy`,
+  `Allow me to call you ${name}`,
   `Ho Ho Ho!, Santa almost skipped you… but changed his mind`,
   `Merry Christmas! Santa approves this smile.`,
   `Calories don’t count today. Enjoy `,
   `Happiness level: MAXIMUM`,
   `Santa says you deserves extra snacks`,
   `Warning: happiness overload detected `,
-  `This message comes with free joy`,
   `Smile ${name}, Christmas magic is real!`
 ];
 
 let index = 0;
-let interval = 3000;
+let interval = 6000;
 let timer;
 
 const taja = document.getElementById("taja");
@@ -178,22 +205,13 @@ function updateMessage() {
 
     sparkleBurst();
     confettiBurst();
-
-    if ((index + 1) % 5 === 0) {
-      santaPopup();
-      santaSpeak(text);
-    }
+    santaSpeak(text);
+    santaPopup();
 
     index++;
     restartProgressBar();
     timer = setTimeout(updateMessage, interval);
   }, 400);
-}
-
-function startTimer() {
-  clearInterval(timer);
-  timer = setInterval(updateMessage, interval);
-  restartProgressBar();
 }
 
 const slider = document.getElementById("timeSlider");
@@ -202,7 +220,6 @@ const timeValue = document.getElementById("timeValue");
 slider.addEventListener("input", () => {
   timeValue.innerText = slider.value;
   interval = slider.value * 1000;
-  startTimer();
 });
 
 function restartProgressBar() {
@@ -261,7 +278,6 @@ function santaPopup() {
 }
 
 clearTimeout(timer);
-updateMessage();
 </script>
 
 </body>
