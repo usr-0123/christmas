@@ -22,10 +22,10 @@
   }
 
   .controls {
+    display: none;
     margin-top: 20px;
   }
 
-  /* ⏳ Progress bar */
   .progress-container {
     width: 60%;
     height: 8px;
@@ -39,10 +39,8 @@
     height: 100%;
     width: 0%;
     background: #00ffcc;
-    transition: width linear;
   }
 
-  /* 💬 Message with crossfade */
   .message {
     margin: 60px auto;
     font-size: 28px;
@@ -60,9 +58,7 @@
   }
 
   @keyframes fall {
-    to {
-      transform: translateY(110vh);
-    }
+    to { transform: translateY(110vh); }
   }
 
   .santa-popup {
@@ -76,12 +72,26 @@
   }
 
   @keyframes santaPop {
-    0% { bottom: -100px; }
-    50% { bottom: 40px; }
-    100% { bottom: -100px; }
+    0% { bottom: -120px; }
+    50% { bottom: 60px; }
+    100% { bottom: -120px; }
   }
 
-  /* ✨ Sparkles */
+  .confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    background: red;
+    animation: confetti 2s ease-out forwards;
+  }
+
+  @keyframes confetti {
+    to {
+      transform: translate(var(--x), var(--y)) rotate(720deg);
+      opacity: 0;
+    }
+  }
+
   .sparkle {
     position: fixed;
     font-size: 20px;
@@ -104,7 +114,16 @@
 
 <body>
 
-<h1>🎄 Merry Christmas 🎄</h1>
+<!-- <h1>🎄 Merry Christmas 🎄</h1> -->
+
+<h1 id="taja"></h1>
+
+<div class="controls">
+  ⏱ Change message every:
+  <strong><span id="timeValue">3</span></strong> seconds
+  <br><br>
+  <input type="range" min="1" max="10" value="3" id="timeSlider" style="width: 250px;display: none;">
+</div>
 
 <div class="progress-container">
   <div class="progress-bar" id="progressBar"></div>
@@ -112,102 +131,136 @@
 
 <div class="message" id="message"></div>
 
-<audio autoplay loop>
-  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
-</audio>
-
 <script>
-  const params = new URLSearchParams(window.location.search);
-  const name = params.get("name") || "My Friend";
+const params = new URLSearchParams(window.location.search);
+const name = params.get("name") || "Ng";
 
-  const messages = [
-    `🎅 Ho Ho Ho ${name}! Santa almost skipped you… but changed his mind 😄`,
-    `🎄 Merry Christmas ${name}! May your food be plenty and your stress be zero`,
-    `🎁 ${name}, calories don’t count today. Enjoy 😌`,
-    `❄ ${name}! Christmas vibes loading… ████████ 100%`,
-    `🎅 Santa says ${name} deserves extra snacks`,
-    `🎄 Warning ${name}: happiness overload detected 😂`,
-    `🎁 ${name}, this message comes with free joy`,
-    `✨ Smile ${name}, Christmas magic is real`
-  ];
+const messages = [
+  `🎅 Ho Ho Ho!, Santa almost skipped you… but changed his mind 😄`,
+  `🎅 Merry Christmas! Santa approves this smile. 😌`,
+  `🎁 Calories don’t count today. Enjoy 😌`,
+  `❄ Happiness level: MAXIMUM 🎄`,
+  `🎅 Santa says you deserves extra snacks`,
+  `🎄 Warning: happiness overload detected 😂`,
+  `🎁 This message comes with free joy`,
+  `✨ Smile ${name}, Christmas magic is real!`
+];
 
-  let index = 0;
-  let interval = 3000;
-  let timer;
+let index = 0;
+let interval = 3000;
+let timer;
 
-  const msg = document.getElementById("message");
-  const progressBar = document.getElementById("progressBar");
+const taja = document.getElementById("taja");
 
-  function updateMessage() {
-    msg.style.opacity = 0;
+taja.innerText = `Hey ${name},`;
 
-    setTimeout(() => {
-      msg.innerText = messages[index % messages.length];
-      msg.style.opacity = 1;
-      sparkleBurst();
+const msg = document.getElementById("message");
+const progressBar = document.getElementById("progressBar");
 
-      if ((index + 1) % 0.5 === 0) {
-        santaPopup();
-      }
+function santaSpeak(text) {
+  if (!("speechSynthesis" in window)) return;
 
-      index++;
-      restartProgressBar();
-    }, 400);
-  }
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = 0.9;
+  utter.pitch = 0.8;
+  utter.lang = "en-US";
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utter);
+}
 
-  function startTimer() {
-    clearInterval(timer);
-    timer = setInterval(updateMessage, interval);
-    restartProgressBar();
-  }
+function updateMessage() {
+  msg.style.opacity = 0;
 
-  const timeValue = 1;
+  setTimeout(() => {
+    const text = messages[index % messages.length];
+    msg.innerText = text;
+    msg.style.opacity = 1;
 
-  function restartProgressBar() {
-    progressBar.style.transition = "none";
-    progressBar.style.width = "0%";
+    sparkleBurst();
+    confettiBurst();
 
-    setTimeout(() => {
-      progressBar.style.transition = `width ${interval}ms linear`;
-      progressBar.style.width = "100%";
-    }, 50);
-  }
-
-  function createSnow() {
-    const snow = document.createElement("div");
-    snow.className = "snowflake";
-    snow.innerText = "❄";
-    snow.style.left = Math.random() * window.innerWidth + "px";
-    snow.style.animationDuration = 3 + Math.random() * 5 + "s";
-    snow.style.opacity = Math.random();
-    snow.style.fontSize = 10 + Math.random() * 20 + "px";
-    document.body.appendChild(snow);
-    setTimeout(() => snow.remove(), 8000);
-  }
-  setInterval(createSnow, 150);
-
-  function sparkleBurst() {
-    for (let i = 0; i < 12; i++) {
-      const sparkle = document.createElement("div");
-      sparkle.className = "sparkle";
-      sparkle.innerText = ["✨","🎄","🎅","🎁","💬","❄"][Math.floor(Math.random() * 4)];
-      sparkle.style.left = Math.random() * window.innerWidth + "px";
-      sparkle.style.top = Math.random() * window.innerHeight + "px";
-      document.body.appendChild(sparkle);
-      setTimeout(() => sparkle.remove(), 1500);
+    if ((index + 1) % 1 === 0) {
+      santaPopup();
+      santaSpeak(text);
     }
-  }
 
-  function santaPopup() {
-    const santa = document.createElement("div");
-    santa.className = "santa-popup";
-    santa.innerText = "🎅";
-    document.body.appendChild(santa);
-    setTimeout(() => santa.remove(), 2000);
-  }
+    index++;
+    restartProgressBar();
+  }, 400);
+}
 
-  updateMessage();
+function startTimer() {
+  clearInterval(timer);
+  timer = setInterval(updateMessage, interval);
+  restartProgressBar();
+}
+
+const slider = document.getElementById("timeSlider");
+const timeValue = document.getElementById("timeValue");
+
+slider.addEventListener("input", () => {
+  timeValue.innerText = slider.value;
+  interval = slider.value * 1000;
   startTimer();
+});
+
+function restartProgressBar() {
+  progressBar.style.transition = "none";
+  progressBar.style.width = "0%";
+  setTimeout(() => {
+    progressBar.style.transition = `width ${interval}ms linear`;
+    progressBar.style.width = "100%";
+  }, 50);
+}
+
+function createSnow() {
+  const snow = document.createElement("div");
+  snow.className = "snowflake";
+  snow.innerText = "❄";
+  snow.style.left = Math.random() * window.innerWidth + "px";
+  snow.style.animationDuration = 3 + Math.random() * 5 + "s";
+  snow.style.fontSize = 10 + Math.random() * 20 + "px";
+  document.body.appendChild(snow);
+  setTimeout(() => snow.remove(), 8000);
+}
+setInterval(createSnow, 150);
+
+function sparkleBurst() {
+  for (let i = 0; i < 12; i++) {
+    const s = document.createElement("div");
+    s.className = "sparkle";
+    s.innerText = ["✨","🎄","🎁"][Math.floor(Math.random()*3)];
+    s.style.left = Math.random() * window.innerWidth + "px";
+    s.style.top = Math.random() * window.innerHeight + "px";
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 1500);
+  }
+}
+
+function confettiBurst() {
+  for (let i = 0; i < 25; i++) {
+    const c = document.createElement("div");
+    c.className = "confetti";
+    c.style.background = `hsl(${Math.random()*360},100%,50%)`;
+    c.style.left = "50%";
+    c.style.top = "50%";
+    c.style.setProperty("--x", `${(Math.random()-0.5)*600}px`);
+    c.style.setProperty("--y", `${(Math.random()-0.5)*600}px`);
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 2000);
+  }
+}
+
+function santaPopup() {
+  const santa = document.createElement("div");
+  santa.className = "santa-popup";
+  santa.innerText = "🎅";
+  document.body.appendChild(santa);
+  setTimeout(() => santa.remove(), 3000);
+}
+
+updateMessage();
+startTimer();
 </script>
 
 </body>
