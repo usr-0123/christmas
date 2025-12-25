@@ -186,6 +186,7 @@ function updateMessage() {
 
     index++;
     restartProgressBar();
+    timer = setTimeout(updateMessage, interval);
   }, 400);
 }
 
@@ -259,8 +260,8 @@ function santaPopup() {
   setTimeout(() => santa.remove(), 3000);
 }
 
+clearTimeout(timer);
 updateMessage();
-startTimer();
 </script>
 
 </body>
